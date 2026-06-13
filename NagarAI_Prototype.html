@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NagarAI — Citizen Dashboard</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #F0F4F8; color: #1E293B; min-height: 100vh; }
+
+  .shell { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem; }
+
+  /* Topbar */
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.25rem; background: #fff; border-radius: 12px; border: 1px solid #E2E8F0; margin-bottom: 1rem; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .logo { font-size: 17px; font-weight: 600; color: #0D1B3E; }
+  .logo span { color: #0D9488; }
+  .badge { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: #E0F2F1; color: #0D6E56; font-weight: 500; }
+  .topbar-right { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #64748B; }
+
+  /* Metrics */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1rem; }
+  .metric { background: #EEF2F7; border-radius: 10px; padding: 1rem 1.1rem; }
+  .metric-label { font-size: 12px; color: #64748B; margin-bottom: 5px; }
+  .metric-val { font-size: 24px; font-weight: 600; color: #0D1B3E; }
+  .metric-sub { font-size: 11px; color: #64748B; margin-top: 3px; }
+  .metric-sub.up { color: #0D9488; }
+  .metric-sub.warn { color: #BA7517; }
+
+  /* Cards */
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .card { background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem 1.25rem; }
+  .card-title { font-size: 13px; font-weight: 600; color: #0D1B3E; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 6px; }
+  .card-title i { font-size: 16px; color: #0D9488; }
+
+  /* Complaints */
+  .complaint-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #F1F5F9; font-size: 13px; }
+  .complaint-row:last-child { border-bottom: none; }
+  .pill { font-size: 11px; padding: 2px 8px; border-radius: 20px; white-space: nowrap; font-weight: 500; }
+  .pill-open { background: #E0F2F1; color: #0D6E56; }
+  .pill-progress { background: #FAEEDA; color: #854F0B; }
+  .pill-closed { background: #EAF3DE; color: #3B6D11; }
+  .pill-urgent { background: #FCEBEB; color: #A32D2D; }
+  .c-txt { flex: 1; color: #1E293B; }
+  .c-loc { color: #94A3B8; font-size: 11px; margin-left: 4px; }
+  .dept-badge { font-size: 11px; background: #F1F5F9; color: #64748B; padding: 2px 8px; border-radius: 6px; }
+
+  /* Bar chart */
+  .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+  .bar-label { width: 80px; color: #64748B; text-align: right; flex-shrink: 0; }
+  .bar-track { flex: 1; background: #F1F5F9; border-radius: 4px; height: 10px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; }
+  .bar-count { width: 28px; color: #64748B; text-align: right; flex-shrink: 0; }
+
+  /* Alerts */
+  .alert-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #F1F5F9; font-size: 13px; }
+  .alert-row:last-child { border-bottom: none; }
+  .alert-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
+  .ai-green { background: #E0F2F1; color: #0D6E56; }
+  .ai-amber { background: #FAEEDA; color: #854F0B; }
+  .ai-red { background: #FCEBEB; color: #A32D2D; }
+  .alert-title { font-weight: 600; color: #1E293B; }
+  .alert-sub { font-size: 11px; color: #64748B; margin-top: 2px; }
+
+  /* Traffic */
+  .traffic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .traffic-card { background: #F8FAFC; border-radius: 8px; padding: 9px 11px; }
+  .traffic-title { font-size: 11px; color: #64748B; margin-bottom: 3px; }
+  .traffic-val { font-size: 16px; font-weight: 600; }
+  .traffic-sub { font-size: 11px; margin-top: 1px; }
+  .green { color: #0D9488; }
+  .amber { color: #BA7517; }
+  .red { color: #A32D2D; }
+  .signal-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: #64748B; margin-top: 8px; padding-top: 8px; border-top: 1px solid #F1F5F9; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-g { background: #0D9488; }
+  .dot-a { background: #BA7517; }
+  .dot-r { background: #A32D2D; }
+
+  /* Form */
+  .submit-form { display: flex; flex-direction: column; gap: 8px; }
+  .submit-form select, .submit-form input, .submit-form textarea {
+    width: 100%; font-size: 13px; padding: 7px 10px;
+    border-radius: 8px; border: 1px solid #E2E8F0;
+    background: #F8FAFC; color: #1E293B; font-family: inherit;
+  }
+  .submit-form textarea { resize: none; height: 60px; }
+  .lang-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .lang-tag { font-size: 11px; padding: 3px 9px; border-radius: 20px; background: #F1F5F9; color: #64748B; }
+  .submit-btn {
+    background: #0D9488; color: #fff; border: none; border-radius: 8px;
+    padding: 8px 14px; font-size: 13px; cursor: pointer; font-weight: 600;
+    font-family: inherit; transition: background 0.15s;
+  }
+  .submit-btn:hover { background: #0F6E56; }
+
+  .footer-note { text-align: center; font-size: 12px; color: #94A3B8; margin-top: 1.5rem; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <i class="ti ti-building-community" style="font-size:22px;color:#0D9488"></i>
+      <span class="logo">Nagar<span>AI</span></span>
+      <span class="badge">Durgapur Municipal Corporation</span>
+    </div>
+    <div class="topbar-right">
+      <i class="ti ti-map-pin" style="font-size:14px"></i>
+      Ward 12 — City Centre &nbsp;|&nbsp; <span id="clock">--:--</span>
+    </div>
+  </div>
+
+  <!-- Metrics -->
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Open complaints</div>
+      <div class="metric-val" id="m1">247</div>
+      <div class="metric-sub warn">↑ 12 since yesterday</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Resolved today</div>
+      <div class="metric-val" id="m2">83</div>
+      <div class="metric-sub up">↑ 24% vs last week</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Avg. resolution time</div>
+      <div class="metric-val">4.2 days</div>
+      <div class="metric-sub up">↓ from 16.8d baseline</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Citizens registered</div>
+      <div class="metric-val">14,381</div>
+      <div class="metric-sub up">+320 this month</div>
+    </div>
+  </div>
+
+  <!-- Row 2 -->
+  <div class="row2">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-list-check"></i> Recent complaints</div>
+      <div class="complaint-row">
+        <span class="pill pill-urgent">Urgent</span>
+        <span class="c-txt">Waterlogging on B.C. Road <span class="c-loc">Ward 12</span></span>
+        <span class="dept-badge">PWD</span>
+      </div>
+      <div class="complaint-row">
+        <span class="pill pill-progress">In progress</span>
+        <span class="c-txt">Streetlight out — Benachity <span class="c-loc">Ward 8</span></span>
+        <span class="dept-badge">Electricity</span>
+      </div>
+      <div class="complaint-row">
+        <span class="pill pill-open">Open</span>
+        <span class="c-txt">Garbage not collected — A zone <span class="c-loc">Ward 5</span></span>
+        <span class="dept-badge">Sanitation</span>
+      </div>
+      <div class="complaint-row">
+        <span class="pill pill-closed">Closed</span>
+        <span class="c-txt">Pothole repaired — City Centre <span class="c-loc">Ward 12</span></span>
+        <span class="dept-badge">Roads</span>
+      </div>
+      <div class="complaint-row">
+        <span class="pill pill-progress">In progress</span>
+        <span class="c-txt">Water disruption — Nachan Rd <span class="c-loc">Ward 3</span></span>
+        <span class="dept-badge">Water Board</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-chart-bar"></i> Complaints by department</div>
+      <div class="bar-row"><span class="bar-label">Roads</span><div class="bar-track"><div class="bar-fill" style="width:72%;background:#0D9488"></div></div><span class="bar-count">89</span></div>
+      <div class="bar-row"><span class="bar-label">Water</span><div class="bar-track"><div class="bar-fill" style="width:58%;background:#185FA5"></div></div><span class="bar-count">72</span></div>
+      <div class="bar-row"><span class="bar-label">Electricity</span><div class="bar-track"><div class="bar-fill" style="width:46%;background:#3B6D11"></div></div><span class="bar-count">57</span></div>
+      <div class="bar-row"><span class="bar-label">Sanitation</span><div class="bar-track"><div class="bar-fill" style="width:38%;background:#993C1D"></div></div><span class="bar-count">47</span></div>
+      <div class="bar-row"><span class="bar-label">Parks</span><div class="bar-track"><div class="bar-fill" style="width:19%;background:#7F77DD"></div></div><span class="bar-count">23</span></div>
+      <div class="bar-row"><span class="bar-label">Other</span><div class="bar-track"><div class="bar-fill" style="width:11%;background:#BA7517"></div></div><span class="bar-count">14</span></div>
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid #F1F5F9;font-size:11px;color:#64748B">
+        AI auto-routed 98.6% of complaints correctly this week
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3 -->
+  <div class="row3">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-robot"></i> AI alerts</div>
+      <div class="alert-row">
+        <div class="alert-icon ai-red"><i class="ti ti-alert-triangle"></i></div>
+        <div>
+          <div class="alert-title">Flood risk — Ward 3</div>
+          <div class="alert-sub">Heavy rain predicted. 3 drainage complaints nearby.</div>
+        </div>
+      </div>
+      <div class="alert-row">
+        <div class="alert-icon ai-amber"><i class="ti ti-tool"></i></div>
+        <div>
+          <div class="alert-title">Pipeline check due</div>
+          <div class="alert-sub">Sector IIA — 4 leak complaints in 30 days</div>
+        </div>
+      </div>
+      <div class="alert-row">
+        <div class="alert-icon ai-green"><i class="ti ti-check"></i></div>
+        <div>
+          <div class="alert-title">Waste route optimised</div>
+          <div class="alert-sub">Saved 31 km today. 3 bins at 90%+ capacity.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-traffic-lights"></i> Traffic & mobility</div>
+      <div class="traffic-grid">
+        <div class="traffic-card">
+          <div class="traffic-title">City Centre junction</div>
+          <div class="traffic-val amber">Moderate</div>
+          <div class="traffic-sub amber">~4 min delay</div>
+        </div>
+        <div class="traffic-card">
+          <div class="traffic-title">Benachity crossing</div>
+          <div class="traffic-val green">Clear</div>
+          <div class="traffic-sub green">Signal optimised</div>
+        </div>
+        <div class="traffic-card">
+          <div class="traffic-title">B.C. Road</div>
+          <div class="traffic-val red">Heavy</div>
+          <div class="traffic-sub red">Waterlog detour</div>
+        </div>
+        <div class="traffic-card">
+          <div class="traffic-title">Bus line 14</div>
+          <div class="traffic-val green">On time</div>
+          <div class="traffic-sub green">3 min to arrive</div>
+        </div>
+      </div>
+      <div class="signal-row">
+        <span class="dot dot-g"></span>12 adaptive
+        <span class="dot dot-a" style="margin-left:8px"></span>3 moderate
+        <span class="dot dot-r" style="margin-left:8px"></span>1 congested
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-send"></i> File a complaint</div>
+      <div class="submit-form">
+        <select>
+          <option>Select department</option>
+          <option>Roads &amp; PWD</option>
+          <option>Water Supply</option>
+          <option>Electricity Board</option>
+          <option>Sanitation</option>
+          <option>Parks &amp; Gardens</option>
+        </select>
+        <input type="text" placeholder="Location / landmark" />
+        <textarea placeholder="Describe the issue..."></textarea>
+        <div class="lang-row">
+          <span class="lang-tag">English</span>
+          <span class="lang-tag">বাংলা</span>
+          <span class="lang-tag">हिन्दी</span>
+          <span class="lang-tag" style="color:#0D9488">🎙 Voice</span>
+        </div>
+        <button class="submit-btn" onclick="submitComplaint()">Submit complaint</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">NagarAI Prototype — Smart City Design Competition · Concept Layer</div>
+</div>
+
+<script>
+function pad(n){return n<10?'0'+n:n;}
+function tick(){
+  var d=new Date();
+  document.getElementById('clock').textContent=pad(d.getHours())+':'+pad(d.getMinutes());
+}
+tick(); setInterval(tick,1000);
+
+var c1=247, c2=83;
+setInterval(function(){
+  if(Math.random()>0.5&&c1>240){c1--;c2++;}else{c1++;}
+  document.getElementById('m1').textContent=c1;
+  document.getElementById('m2').textContent=c2;
+},4000);
+
+function submitComplaint(){
+  var loc=document.querySelector('.submit-form input').value.trim();
+  var desc=document.querySelector('.submit-form textarea').value.trim();
+  if(!loc||!desc){alert('Please fill in location and description.');return;}
+  alert('Complaint submitted!\n\nAI is routing to the correct department.\nYou will receive an SMS update within 10 minutes.');
+}
+</script>
+</body>
+</html>
